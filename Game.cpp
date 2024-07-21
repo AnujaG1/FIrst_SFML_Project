@@ -46,6 +46,7 @@ void Game::doProcessing(sf::Time &dt)
                 pipes.erase(pipes.begin() + i);
             }
         }
+        checkCollisions();
     }
     bird.update(dt);
 }
@@ -84,11 +85,24 @@ void Game::startGameLoop()
         win.display();
     }
 }
+void Game::checkCollisions()
+{
+    if (pipes.size() > 0)
+    {
+        if (pipes[0].sprite_down.getGlobalBounds().intersects(bird.bird_sprite.getGlobalBounds()) ||
+            pipes[0].sprite_up.getGlobalBounds().intersects(bird.bird_sprite.getGlobalBounds()) || // checks collision of bird with pipes
+            bird.bird_sprite.getGlobalBounds().top >= 540)
+        {
+            is_enter_pressed = false;
+            run_game = false;
+        }
+    }
+}
 
 void Game::draw()
 {
     win.draw(bg_sprite);
-    for(Pipe& pipe : pipes)
+    for (Pipe &pipe : pipes)
     {
         win.draw(pipe.sprite_down);
         win.draw(pipe.sprite_up);

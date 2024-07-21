@@ -24,7 +24,7 @@ void Pipe::update(sf::Time &dt)
 }
 float Pipe::getRightBound()
 {
-    return sprite_down.getGlobalBounds().left+sprite_down.getGlobalBounds().width;
+    return sprite_down.getGlobalBounds().left + sprite_down.getGlobalBounds().width;
 }
- sf::Texture Pipe ::texture_down, Pipe::texture_up;
-int Pipe::pipe_distance = 150, Pipe::move_speed = 400;
+sf::Texture Pipe ::texture_down, Pipe::texture_up;
+int Pipe::pipe_distance = 180, Pipe::move_speed = 400;
