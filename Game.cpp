@@ -1,4 +1,6 @@
+#include <iostream>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "Windows.h"
 #include "Game.h"
 Game::Game(sf::RenderWindow &window) : win(window), is_enter_pressed(false),
@@ -9,12 +11,12 @@ Game::Game(sf::RenderWindow &window) : win(window), is_enter_pressed(false),
 {
     win.setFramerateLimit(60);
 
-    bg_texture.loadFromFile("assests/bg.png"); // loading file from hardrive
+    bg_texture.loadFromFile("assets/bg.png"); // loading file from hardrive
     bg_sprite.setTexture(bg_texture);
     bg_sprite.setScale(SCALE_FACTOR, SCALE_FACTOR);
     bg_sprite.setPosition(0.f, -300.f);
 
-    ground_texture.loadFromFile("assests/ground.png");
+    ground_texture.loadFromFile("assets/ground.png");
     ground_sprite1.setTexture(ground_texture);
     ground_sprite2.setTexture(ground_texture);
 
@@ -24,19 +26,32 @@ Game::Game(sf::RenderWindow &window) : win(window), is_enter_pressed(false),
     ground_sprite1.setPosition(0.f, 575);
     ground_sprite2.setPosition(ground_sprite1.getGlobalBounds().width, 575);
 
-    font.loadFromFile("assests/arial.ttf");
+    font.loadFromFile("assets/HWYGOTH.TTF");
+    start_text.setFont(font);
+    start_text.setCharacterSize(50);
+    start_text.setFillColor(sf::Color::White);
+    start_text.setPosition(180, 280);
+    start_text.setString("Start Game");
+
+    font.loadFromFile("assets/HWYGOTH.TTF");
     restart_text.setFont(font);
     restart_text.setCharacterSize(50);
     restart_text.setFillColor(sf::Color::White);
     restart_text.setPosition(180, 280);
     restart_text.setString("Play Again!");
 
-    font.loadFromFile("assests/arial.ttf");
+    font.loadFromFile("assets/HWYGOTH.TTF");
     score_text.setFont(font);
     score_text.setCharacterSize(34);
     score_text.setFillColor(sf::Color::White);
     score_text.setPosition(15, 15);
     score_text.setString("Score:0");
+
+    score_buffer.loadFromFile("assets/sfx/flap.wav");
+    score_sound.setBuffer(score_buffer);
+
+    dead_buffer.loadFromFile("assets/sfx/dead.wav");
+    dead_sound.setBuffer(dead_buffer);
 
     Pipe::loadTextures();
 }
@@ -74,40 +89,59 @@ void Game::startGameLoop()
     while (win.isOpen()) // Game will run until the window is open.
     {
         sf::Time dt = clock.restart();
-        sf::Event event;             // created a event class to handle the event.
+        sf::Event event;             // created an event class to handle the event.
         while (win.pollEvent(event)) // to watch the event happened
         {
             if (event.type == sf::Event::Closed)
             {
                 win.close();
             }
+
             if (event.type == sf::Event::KeyPressed && run_game)
             {
-                if (event.key.code == sf::Keyboard::Enter && !is_enter_pressed) // to watch the event happened
+                if (event.key.code == sf::Keyboard::Enter && !is_enter_pressed)
                 {
                     is_enter_pressed = true;
                     bird.setShouldFly(true);
                 }
-                if (event.key.code == sf::Keyboard::Space && is_enter_pressed)
+                else if (event.key.code == sf::Keyboard::Space && is_enter_pressed)
                 {
                     bird.flapBird(dt);
                 }
             }
-            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && !run_game)
+
+            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
-                if (restart_text.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+                if (!run_game)
                 {
-                    restartGame();
+                    if (restart_text.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+                    {
+                        restartGame();
+                    }
+                }
+                else if (!is_enter_pressed)
+                {
+                    if (start_text.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+                    {
+                        is_enter_pressed = true;
+                        bird.setShouldFly(true);
+                        start_text.setString("");
+                    }
                 }
             }
         }
-        // moveGround(dt);
-        bird.update(dt);
-        doProcessing(dt);
+
+        // Update game state and render
+        if (is_enter_pressed)
+        {
+            bird.update(dt);
+            doProcessing(dt);
+        }
         draw();
         win.display();
     }
 }
+
 void Game::checkCollisions()
 {
     if (pipes.size() > 0)
@@ -116,6 +150,7 @@ void Game::checkCollisions()
             pipes[0].sprite_up.getGlobalBounds().intersects(bird.bird_sprite.getGlobalBounds()) || // checks collision of bird with pipes
             bird.bird_sprite.getGlobalBounds().top >= 540)
         {
+            dead_sound.play();
             is_enter_pressed = false;
             run_game = false;
         }
@@ -140,6 +175,7 @@ void Game::checkScore()
             {
                 score++;
                 score_text.setString("Score:" + toString(score));
+                score_sound.play();
                 start_monitoring = false;
             }
         }
@@ -154,6 +190,7 @@ void Game::draw()
         win.draw(pipe.sprite_down);
         win.draw(pipe.sprite_up);
     }
+    win.draw(start_text);
     win.draw(ground_sprite1);
     win.draw(ground_sprite2);
     win.draw(bird.bird_sprite);
@@ -161,6 +198,10 @@ void Game::draw()
     if (!run_game)
     {
         win.draw(restart_text);
+    }
+    if (!is_enter_pressed && !run_game)
+    {
+        win.draw(start_text);
     }
 }
 
@@ -182,9 +223,9 @@ void Game::moveGround(sf::Time &dt)
 void Game::restartGame()
 {
     bird.resetBirdPosition();
-    bird.setShouldFly(false);
+    bird.setShouldFly(true);
     run_game = true;
-    is_enter_pressed = false;
+    is_enter_pressed = true;
     pipe_counter = 71;
     pipes.clear();
     score = 0;

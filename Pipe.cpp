@@ -14,8 +14,8 @@ Pipe::Pipe(int y_pos)
 }
 void Pipe::loadTextures()
 {
-    texture_down.loadFromFile("assests/pipedown.png");
-    texture_up.loadFromFile("assests/pipe.png");
+    texture_down.loadFromFile("assets/pipedown.png");
+    texture_up.loadFromFile("assets/pipe.png");
 }
 void Pipe::update(sf::Time &dt)
 {

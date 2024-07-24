@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "Bird.h"
 #include <vector>
 #include <random>
@@ -13,8 +14,8 @@ public:
     void startGameLoop();
 
 private:
-    sf::Texture bg_texture, ground_texture; // Not making constant only because we have to give here value
-    sf::Sprite bg_sprite, ground_sprite1, ground_sprite2;
+    sf::Texture bg_texture, ground_texture, start_texture; // Not making constant only because we have to give here value
+    sf::Sprite bg_sprite, ground_sprite1, ground_sprite2, start_sprite;
     Bird bird;
     bool is_enter_pressed, run_game, start_monitoring;
     sf::Clock clock;
@@ -31,5 +32,7 @@ private:
     std::random_device rd; // for generating random numbers
     std::uniform_int_distribution<int> dist{250, 550};
     sf::Font font;
-    sf::Text restart_text, score_text;
+    sf::Text start_text,restart_text, score_text;
+    sf::SoundBuffer score_buffer, dead_buffer;
+    sf::Sound score_sound, dead_sound;
 };

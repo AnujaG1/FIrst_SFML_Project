@@ -10,8 +10,8 @@ Bird::Bird() :
         should_fly(false)
 
 {
-  textures[0].loadFromFile("assests/birddown.png");
-  textures[1].loadFromFile("assests/birdup.png");
+  textures[0].loadFromFile("assets/birddown.png");
+  textures[1].loadFromFile("assets/birdup.png");
 
   bird_sprite.setTexture(textures[0]);
   bird_sprite.setScale(SCALE_FACTOR, SCALE_FACTOR);
