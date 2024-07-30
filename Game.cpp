@@ -23,11 +23,13 @@ Game::Game(sf::RenderWindow &window) : win(window), is_enter_pressed(false), is_
 
     volume_on_texture.loadFromFile("assets/volume_on.png");
     volume_on_sprite.setTexture(volume_on_texture);
-    volume_on_sprite.setPosition(-15, 15);
+    volume_on_sprite.setScale(0.1f, 0.1f);
+    volume_on_sprite.setPosition(520, 8);
 
-    // volume_off_texture.loadFromFile("assets/volume_off.png");
-    // volume_off_sprite.setTexture(volume_off_texture);
-    // volume_off_sprite.setPosition(-15,15);
+    volume_off_texture.loadFromFile("assets/volume_off.png");
+    volume_off_sprite.setTexture(volume_off_texture);
+    volume_off_sprite.setScale(0.1f, 0.1f);
+    volume_off_sprite.setPosition(520, 8);
 
     ground_texture.loadFromFile("assets/ground.png");
     ground_sprite1.setTexture(ground_texture);
@@ -116,7 +118,6 @@ void Game::startGameLoop()
             {
                 win.close();
             }
-
             if (event.type == sf::Event::KeyPressed && run_game)
             {
                 if (event.key.code == sf::Keyboard::Enter && !is_enter_pressed)
@@ -148,6 +149,14 @@ void Game::startGameLoop()
                         start_text.setString("");
                     }
                 }
+                if (volume_on_sprite.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y) && !is_mute_pressed)
+                {
+                    is_mute_pressed = true;
+                }
+                else if (volume_off_sprite.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y) && is_mute_pressed)
+                {
+                    is_mute_pressed = false;
+                }
             }
         }
 
@@ -169,7 +178,10 @@ void Game::checkCollisions()
             pipes[0].sprite_up.getGlobalBounds().intersects(bird.bird_sprite.getGlobalBounds()) ||
             bird.bird_sprite.getGlobalBounds().top >= 540)
         {
-            dead_sound.play();
+            if (!is_mute_pressed)
+            {
+                dead_sound.play();
+            }
             is_enter_pressed = false;
             run_game = false;
         }
@@ -194,7 +206,10 @@ void Game::checkScore()
             {
                 score++;
                 score_hud_text.setString("Score: " + toString(score));
-                score_sound.play();
+                if (!is_mute_pressed)
+                {
+                    score_sound.play();
+                }
                 start_monitoring = false;
             }
         }
@@ -209,16 +224,19 @@ void Game::draw()
         win.draw(pipe.sprite_down);
         win.draw(pipe.sprite_up);
     }
-    if (!is_enter_pressed)
+    if (is_mute_pressed)
     {
-        win.draw(loading_sprite);
+        win.draw(volume_off_sprite);
+    }
+    else
+    {
+        win.draw(volume_on_sprite);
     }
     win.draw(start_text);
     win.draw(ground_sprite1);
     win.draw(ground_sprite2);
     win.draw(bird.bird_sprite);
     win.draw(score_hud_text);
-    win.draw(volume_on_sprite);
     if (!run_game)
     {
         win.draw(restart_text);
