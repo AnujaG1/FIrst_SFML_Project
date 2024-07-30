@@ -14,10 +14,10 @@ public:
     void startGameLoop();
 
 private:
-    sf::Texture bg_texture, ground_texture, start_texture; // Not making constant only because we have to give here value
-    sf::Sprite bg_sprite, ground_sprite1, ground_sprite2, start_sprite;
+    sf::Texture bg_texture, ground_texture, start_texture, loading_texture, volume_on_texture, volume_off_texture; // Not making constant only because we have to give here value
+    sf::Sprite bg_sprite, ground_sprite1, ground_sprite2, start_sprite, loading_sprite, volume_on_sprite, volume_off_sprite ;
     Bird bird;
-    bool is_enter_pressed, run_game, start_monitoring;
+    bool is_enter_pressed, run_game, start_monitoring, is_mute_pressed;
     sf::Clock clock;
     const int move_speed = 270;
     void draw();
@@ -32,7 +32,7 @@ private:
     std::random_device rd; // for generating random numbers
     std::uniform_int_distribution<int> dist{250, 550};
     sf::Font font;
-    sf::Text start_text,restart_text, score_text;
+    sf::Text start_text,restart_text, score_hud_text, scoreboard_text;
     sf::SoundBuffer score_buffer, dead_buffer;
     sf::Sound score_sound, dead_sound;
 };
