@@ -2,44 +2,26 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include "Windows.h"
-#include "Pipe.h"
 #include "Game.h"
-#include<sstream>
-
 
 Game::Game(sf::RenderWindow &window) : win(window), is_enter_pressed(false), is_mute_pressed(false),
                                        run_game(true),
-                                       start_monitoring(false),
                                        pipe_counter(71),
                                        pipe_spawn_time(70),
                                        score(0)
-                                 
 {
     win.setFramerateLimit(60);
-     if (!bg_texture.loadFromFile("assets/bg.png")) {
-        std::cerr << "Error: Could not load bg.png" << std::endl;
-    }
-    if (!bg_textureb.loadFromFile("assets/bg_night.jpg")) {
-        std::cerr << "Error: Could not load bg_night.png" << std::endl;
-    }
-      if (!bg_texturea.loadFromFile("assets/home.jpg")) {
-        std::cerr << "Error: Could not load home.png" << std::endl;
-    }
-    bg_sprite.setTexture(bg_texture);
-    bg_spritea.setTexture(bg_texturea);
-    bg_spriteb.setTexture(bg_textureb);
-    bg_sprite.setScale(SCALE_FACTOR, SCALE_FACTOR);
-    bg_spritea.setScale(SCALE_FACTOR, SCALE_FACTOR);
-    bg_spriteb.setScale(SCALE_FACTOR, SCALE_FACTOR);
-    
-   
-    bg_sprite.setPosition(0.f, 0.f);
-    bg_spritea.setPosition(bg_sprite.getGlobalBounds().width, 0.f);
-    bg_spriteb.setPosition(bg_spritea.getGlobalBounds().width, 0.f);
 
-    if (!volume_on_texture.loadFromFile("assets/volume_on.png")) {
-        std::cerr << "Error: Could not load volume_on.png" << std::endl;
-    }
+    bg_texture.loadFromFile("assets/bg.png");
+    bg_sprite.setTexture(bg_texture);
+    bg_sprite.setScale(SCALE_FACTOR, SCALE_FACTOR);
+    bg_sprite.setPosition(0.f, -300.f);
+
+    loading_texture.loadFromFile("assets/loading.gif");
+    loading_sprite.setTexture(loading_texture);
+    loading_sprite.setPosition(180, 280);
+
+    volume_on_texture.loadFromFile("assets/volume_on.png");
     volume_on_sprite.setTexture(volume_on_texture);
     volume_on_sprite.setScale(0.1f, 0.1f);
     volume_on_sprite.setPosition(520, 8);
@@ -57,30 +39,36 @@ Game::Game(sf::RenderWindow &window) : win(window), is_enter_pressed(false), is_
     ground_sprite1.setPosition(0.f, 575);
     ground_sprite2.setPosition(ground_sprite1.getGlobalBounds().width, 575);
 
-    font.loadFromFile("assets/HWYGOTH.TTF");
+    font.loadFromFile("assets/pixel.ttf");
     start_text.setFont(font);
-    start_text.setCharacterSize(50);
+    start_text.setCharacterSize(30);
     start_text.setFillColor(sf::Color::White);
     start_text.setPosition(180, 280);
     start_text.setString("Start Game");
 
     restart_text.setFont(font);
-    restart_text.setCharacterSize(50);
+    restart_text.setCharacterSize(30);
     restart_text.setFillColor(sf::Color::White);
-    restart_text.setPosition(180, 200);
-    restart_text.setString("Play Again!");
+    restart_text.setPosition(200, 200);
+    restart_text.setString("Play Again");
 
     scoreboard_text.setFont(font);
-    scoreboard_text.setCharacterSize(50);
+    scoreboard_text.setCharacterSize(30);
     scoreboard_text.setFillColor(sf::Color::White);
-    scoreboard_text.setPosition(180, 250);
+    scoreboard_text.setPosition(220, 240);
     scoreboard_text.setString("Score:");
 
     score_hud_text.setFont(font);
-    score_hud_text.setCharacterSize(34);
+    score_hud_text.setCharacterSize(20);
     score_hud_text.setFillColor(sf::Color::White);
     score_hud_text.setPosition(15, 15);
     score_hud_text.setString("Score: 0");
+
+    exit_text.setFont(font);
+    exit_text.setCharacterSize(25);
+    exit_text.setFillColor(sf::Color::White);
+    exit_text.setPosition(500, 700);
+    exit_text.setString("Exit");
 
     score_buffer.loadFromFile("assets/sfx/flap.wav");
     score_sound.setBuffer(score_buffer);
@@ -122,6 +110,7 @@ void Game::doProcessing(sf::Time &dt)
     bird.update(dt);
 }
 
+
 void Game::startGameLoop()
 {
     sf::Clock clock;
@@ -133,8 +122,15 @@ void Game::startGameLoop()
         while (win.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
+                {
+                    win.close();
+                }
+            else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
-                win.close();
+                if (exit_text.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+                {
+                    win.close();
+                }
             }
             if (event.type == sf::Event::KeyPressed && run_game)
             {
@@ -236,21 +232,7 @@ void Game::checkScore()
 
 void Game::draw()
 {
-    if(score >=2 && score <=4)
-    {
-        bg_sprite.setTexture(bg_texturea);
-        win.draw(bg_sprite);
-    } 
-    else if(score >4)
-    {
-        bg_sprite.setTexture(bg_textureb);
-        win.draw(bg_sprite);
-        
-    }
-    else {
-        bg_sprite.setTexture(bg_texture);
-        win.draw(bg_sprite);
-    }
+    win.draw(bg_sprite);
     for (Pipe &pipe : pipes)
     {
         win.draw(pipe.sprite_down);
@@ -267,9 +249,9 @@ void Game::draw()
     win.draw(start_text);
     win.draw(ground_sprite1);
     win.draw(ground_sprite2);
+    win.draw(exit_text);
     win.draw(bird.bird_sprite);
     win.draw(score_hud_text);
-
     if (!run_game)
     {
         win.draw(restart_text);
@@ -285,19 +267,18 @@ void Game::draw()
 void Game::moveGround(sf::Time &dt)
 {
     ground_sprite1.move(-move_speed * dt.asSeconds(), 0.f);
-	ground_sprite2.move(-move_speed * dt.asSeconds(), 0.f);
+    ground_sprite2.move(-move_speed * dt.asSeconds(), 0.f);
+
     if (ground_sprite1.getGlobalBounds().left + ground_sprite1.getGlobalBounds().width < 0)
-	{
-		ground_sprite1.setPosition(ground_sprite2.getGlobalBounds().left + ground_sprite2.getGlobalBounds().width, 578);
-	}
-	if (ground_sprite2.getGlobalBounds().left + ground_sprite2.getGlobalBounds().width < 0)
-	{
-		ground_sprite2.setPosition(ground_sprite1.getGlobalBounds().left + ground_sprite1.getGlobalBounds().width, 578);
-	}
-   
+    {
+        ground_sprite1.setPosition(ground_sprite2.getGlobalBounds().left + ground_sprite2.getGlobalBounds().width, 575);
+    }
+
+    if (ground_sprite2.getGlobalBounds().left + ground_sprite2.getGlobalBounds().width < 0)
+    {
+        ground_sprite2.setPosition(ground_sprite1.getGlobalBounds().left + ground_sprite1.getGlobalBounds().width, 575);
+    }
 }
-
-
 
 void Game::restartGame()
 {
