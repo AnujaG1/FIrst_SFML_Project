@@ -32,7 +32,7 @@ private:
     std::random_device rd; // for generating random numbers
     std::uniform_int_distribution<int> dist{250, 550};
     sf::Font font;
-    sf::Text start_text,restart_text, score_hud_text, scoreboard_text;
+    sf::Text start_text,restart_text, score_hud_text, scoreboard_text, exit_text;
     sf::SoundBuffer score_buffer, dead_buffer;
     sf::Sound score_sound, dead_sound;
 };

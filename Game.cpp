@@ -39,30 +39,36 @@ Game::Game(sf::RenderWindow &window) : win(window), is_enter_pressed(false), is_
     ground_sprite1.setPosition(0.f, 575);
     ground_sprite2.setPosition(ground_sprite1.getGlobalBounds().width, 575);
 
-    font.loadFromFile("assets/HWYGOTH.TTF");
+    font.loadFromFile("assets/pixel.ttf");
     start_text.setFont(font);
-    start_text.setCharacterSize(50);
+    start_text.setCharacterSize(30);
     start_text.setFillColor(sf::Color::White);
     start_text.setPosition(180, 280);
     start_text.setString("Start Game");
 
     restart_text.setFont(font);
-    restart_text.setCharacterSize(50);
+    restart_text.setCharacterSize(30);
     restart_text.setFillColor(sf::Color::White);
-    restart_text.setPosition(180, 200);
-    restart_text.setString("Play Again!");
+    restart_text.setPosition(200, 200);
+    restart_text.setString("Play Again");
 
     scoreboard_text.setFont(font);
-    scoreboard_text.setCharacterSize(50);
+    scoreboard_text.setCharacterSize(30);
     scoreboard_text.setFillColor(sf::Color::White);
-    scoreboard_text.setPosition(180, 250);
+    scoreboard_text.setPosition(220, 240);
     scoreboard_text.setString("Score:");
 
     score_hud_text.setFont(font);
-    score_hud_text.setCharacterSize(34);
+    score_hud_text.setCharacterSize(20);
     score_hud_text.setFillColor(sf::Color::White);
     score_hud_text.setPosition(15, 15);
     score_hud_text.setString("Score: 0");
+
+    exit_text.setFont(font);
+    exit_text.setCharacterSize(25);
+    exit_text.setFillColor(sf::Color::White);
+    exit_text.setPosition(500, 700);
+    exit_text.setString("Exit");
 
     score_buffer.loadFromFile("assets/sfx/flap.wav");
     score_sound.setBuffer(score_buffer);
@@ -115,8 +121,15 @@ void Game::startGameLoop()
         while (win.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
+                {
+                    win.close();
+                }
+            else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
-                win.close();
+                if (exit_text.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+                {
+                    win.close();
+                }
             }
             if (event.type == sf::Event::KeyPressed && run_game)
             {
@@ -235,6 +248,7 @@ void Game::draw()
     win.draw(start_text);
     win.draw(ground_sprite1);
     win.draw(ground_sprite2);
+    win.draw(exit_text);
     win.draw(bird.bird_sprite);
     win.draw(score_hud_text);
     if (!run_game)
