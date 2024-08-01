@@ -16,11 +16,31 @@ void Pipe::loadTextures()
 {
     texture_down.loadFromFile("assets/pipedown.png");
     texture_up.loadFromFile("assets/pipe.png");
+    
 }
-void Pipe::update(sf::Time &dt)
+void Pipe::update(sf::Time &dt, int score)
 {
-    sprite_up.move(-move_speed * dt.asSeconds(), 0.f);
-    sprite_down.move(-move_speed * dt.asSeconds(), 0.f);
+    int current_move_speed = move_speed;
+    if(score <3) {
+        current_move_speed  = 400;
+    }
+    else if(score <7) {
+        current_move_speed = 500;
+    }
+    else if(score <11) {
+        current_move_speed = 800;
+    }
+    else {
+        current_move_speed = 900;
+    }
+    sprite_up.move(-current_move_speed * dt.asSeconds(), 0.f);
+    sprite_down.move(-current_move_speed * dt.asSeconds(), 0.f);
+}
+
+void Pipe::render(sf::RenderWindow& window) {
+    window.draw(sprite_up);
+    window.draw(sprite_down);
+    
 }
 float Pipe::getRightBound()
 {

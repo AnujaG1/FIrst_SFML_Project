@@ -18,5 +18,4 @@ class Bird{
     void resetBirdPosition();
     void update(sf::Time& dt);  
     float getRightBound();  //to get right hand side x-coordinate of bird
-
 };

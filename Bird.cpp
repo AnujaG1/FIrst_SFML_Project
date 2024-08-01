@@ -8,7 +8,7 @@ Bird::Bird() :
         anim_counter(0),
         texture_switch(1),
         should_fly(false)
-
+    
 {
   textures[0].loadFromFile("assets/birddown.png");
   textures[1].loadFromFile("assets/birdup.png");
@@ -25,8 +25,7 @@ void Bird::update(sf::Time & dt)
         if(anim_counter == 5)
         {
             bird_sprite.setTexture(textures[texture_switch]);
-            if(texture_switch) texture_switch =0;
-            else  texture_switch =1;
+            texture_switch = texture_switch ? 0 : 1;
             anim_counter =0;
         }
         anim_counter++;
@@ -35,8 +34,10 @@ void Bird::update(sf::Time & dt)
         bird_sprite.move(0,velocity_y);
 
         if(bird_sprite.getGlobalBounds().top < 0)
+        {
         
             bird_sprite.setPosition(100,0);
+        }
         
     }
 }
@@ -62,4 +63,3 @@ void Bird::setShouldFly(bool should_fly)
 {
 this->should_fly = should_fly;
 }
-
