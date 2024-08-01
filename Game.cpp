@@ -11,17 +11,33 @@ Game::Game(sf::RenderWindow &window) : win(window), is_enter_pressed(false), is_
                                        score(0)
 {
     win.setFramerateLimit(60);
-
-    bg_texture.loadFromFile("assets/bg.png");
+    if (!bg_texture.loadFromFile("assets/bg.png"))
+    {
+        std::cerr << "Error: Could not load bg.png" << std::endl;
+    }
+    if (!bg_textureb.loadFromFile("assets/bg_night.jpg"))
+    {
+        std::cerr << "Error: Could not load bg_night.png" << std::endl;
+    }
+    if (!bg_texturea.loadFromFile("assets/home.jpg"))
+    {
+        std::cerr << "Error: Could not load home.png" << std::endl;
+    }
     bg_sprite.setTexture(bg_texture);
+    bg_spritea.setTexture(bg_texturea);
+    bg_spriteb.setTexture(bg_textureb);
     bg_sprite.setScale(SCALE_FACTOR, SCALE_FACTOR);
-    bg_sprite.setPosition(0.f, -300.f);
+    bg_spritea.setScale(SCALE_FACTOR, SCALE_FACTOR);
+    bg_spriteb.setScale(SCALE_FACTOR, SCALE_FACTOR);
 
-    loading_texture.loadFromFile("assets/loading.gif");
-    loading_sprite.setTexture(loading_texture);
-    loading_sprite.setPosition(180, 280);
+    bg_sprite.setPosition(0.f, 0.f);
+    bg_spritea.setPosition(bg_sprite.getGlobalBounds().width, 0.f);
+    bg_spriteb.setPosition(bg_spritea.getGlobalBounds().width, 0.f);
 
-    volume_on_texture.loadFromFile("assets/volume_on.png");
+    if (!volume_on_texture.loadFromFile("assets/volume_on.png"))
+    {
+        std::cerr << "Error: Could not load volume_on.png" << std::endl;
+    }
     volume_on_sprite.setTexture(volume_on_texture);
     volume_on_sprite.setScale(0.1f, 0.1f);
     volume_on_sprite.setPosition(520, 8);
@@ -94,7 +110,7 @@ void Game::doProcessing(sf::Time &dt)
 
         for (auto it = pipes.begin(); it != pipes.end();)
         {
-            it->update(dt,score);
+            it->update(dt, score);
             if (it->getRightBound() < 0)
             {
                 it = pipes.erase(it);
@@ -110,7 +126,6 @@ void Game::doProcessing(sf::Time &dt)
     bird.update(dt);
 }
 
-
 void Game::startGameLoop()
 {
     sf::Clock clock;
@@ -122,9 +137,9 @@ void Game::startGameLoop()
         while (win.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
-                {
-                    win.close();
-                }
+            {
+                win.close();
+            }
             else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
                 if (exit_text.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
@@ -232,7 +247,22 @@ void Game::checkScore()
 
 void Game::draw()
 {
-    win.draw(bg_sprite);
+    win.draw(exit_text);
+    if(score >=2 && score <=4)
+    {
+        bg_sprite.setTexture(bg_texturea);
+        win.draw(bg_sprite);
+    } 
+    else if(score >4)
+    {
+        bg_sprite.setTexture(bg_textureb);
+        win.draw(bg_sprite);
+        
+    }
+    else {
+        bg_sprite.setTexture(bg_texture);
+        win.draw(bg_sprite);
+    }
     for (Pipe &pipe : pipes)
     {
         win.draw(pipe.sprite_down);
@@ -249,9 +279,9 @@ void Game::draw()
     win.draw(start_text);
     win.draw(ground_sprite1);
     win.draw(ground_sprite2);
-    win.draw(exit_text);
     win.draw(bird.bird_sprite);
     win.draw(score_hud_text);
+
     if (!run_game)
     {
         win.draw(restart_text);
