@@ -2,26 +2,51 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include "Windows.h"
+#include "Pipe.h"
 #include "Game.h"
+#include<sstream>
+
 
 Game::Game(sf::RenderWindow &window) : win(window), is_enter_pressed(false), is_mute_pressed(false),
                                        run_game(true),
+                                       start_monitoring(false),
                                        pipe_counter(71),
                                        pipe_spawn_time(70),
                                        score(0)
+                                 
 {
     win.setFramerateLimit(60);
-
-    bg_texture.loadFromFile("assets/bg.png");
+     if (!bg_texture.loadFromFile("assets/bg.png")) {
+        std::cerr << "Error: Could not load bg.png" << std::endl;
+    }
+    if (!bg_texturea.loadFromFile("assets/bg_night.png")) {
+        std::cerr << "Error: Could not load bg_night.png" << std::endl;
+    }
+      if (!bg_textureb.loadFromFile("assets/home.jpg")) {
+        std::cerr << "Error: Could not load home.png" << std::endl;
+    }
     bg_sprite.setTexture(bg_texture);
+    bg_spritea.setTexture(bg_texturea);
+    bg_spriteb.setTexture(bg_textureb);
     bg_sprite.setScale(SCALE_FACTOR, SCALE_FACTOR);
-    bg_sprite.setPosition(0.f, -300.f);
+    bg_spritea.setScale(SCALE_FACTOR, SCALE_FACTOR);
+    bg_spriteb.setScale(SCALE_FACTOR, SCALE_FACTOR);
+    
+   
+    bg_sprite.setPosition(0.f, 0.f);
+    bg_spritea.setPosition(bg_sprite.getGlobalBounds().width, 0.f);
+    bg_spriteb.setPosition(bg_spritea.getGlobalBounds().width, 0.f);
 
-    loading_texture.loadFromFile("assets/loading.gif");
+    if (!loading_texture.loadFromFile("assets/loading.gif")) {
+        std::cerr << "Error: Could not load loading.gif" << std::endl;
+    }
+   
     loading_sprite.setTexture(loading_texture);
     loading_sprite.setPosition(180, 280);
 
-    volume_on_texture.loadFromFile("assets/volume_on.png");
+    if (!volume_on_texture.loadFromFile("assets/volume_on.png")) {
+        std::cerr << "Error: Could not load volume_on.png" << std::endl;
+    }
     volume_on_sprite.setTexture(volume_on_texture);
     volume_on_sprite.setScale(0.1f, 0.1f);
     volume_on_sprite.setPosition(520, 8);
@@ -88,7 +113,7 @@ void Game::doProcessing(sf::Time &dt)
 
         for (auto it = pipes.begin(); it != pipes.end();)
         {
-            it->update(dt);
+            it->update(dt,score);
             if (it->getRightBound() < 0)
             {
                 it = pipes.erase(it);
@@ -218,7 +243,21 @@ void Game::checkScore()
 
 void Game::draw()
 {
-    win.draw(bg_sprite);
+    if(score >=2 && score <=4)
+    {
+        bg_sprite.setTexture(bg_texturea);
+        win.draw(bg_sprite);
+    } 
+    else if(score >4)
+    {
+        bg_sprite.setTexture(bg_textureb);
+        win.draw(bg_sprite);
+        
+    }
+    else {
+        bg_sprite.setTexture(bg_texture);
+        win.draw(bg_sprite);
+    }
     for (Pipe &pipe : pipes)
     {
         win.draw(pipe.sprite_down);
@@ -237,6 +276,7 @@ void Game::draw()
     win.draw(ground_sprite2);
     win.draw(bird.bird_sprite);
     win.draw(score_hud_text);
+
     if (!run_game)
     {
         win.draw(restart_text);
@@ -252,18 +292,19 @@ void Game::draw()
 void Game::moveGround(sf::Time &dt)
 {
     ground_sprite1.move(-move_speed * dt.asSeconds(), 0.f);
-    ground_sprite2.move(-move_speed * dt.asSeconds(), 0.f);
-
+	ground_sprite2.move(-move_speed * dt.asSeconds(), 0.f);
     if (ground_sprite1.getGlobalBounds().left + ground_sprite1.getGlobalBounds().width < 0)
-    {
-        ground_sprite1.setPosition(ground_sprite2.getGlobalBounds().left + ground_sprite2.getGlobalBounds().width, 575);
-    }
-
-    if (ground_sprite2.getGlobalBounds().left + ground_sprite2.getGlobalBounds().width < 0)
-    {
-        ground_sprite2.setPosition(ground_sprite1.getGlobalBounds().left + ground_sprite1.getGlobalBounds().width, 575);
-    }
+	{
+		ground_sprite1.setPosition(ground_sprite2.getGlobalBounds().left + ground_sprite2.getGlobalBounds().width, 578);
+	}
+	if (ground_sprite2.getGlobalBounds().left + ground_sprite2.getGlobalBounds().width < 0)
+	{
+		ground_sprite2.setPosition(ground_sprite1.getGlobalBounds().left + ground_sprite1.getGlobalBounds().width, 578);
+	}
+   
 }
+
+
 
 void Game::restartGame()
 {
