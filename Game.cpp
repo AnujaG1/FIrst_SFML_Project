@@ -19,10 +19,10 @@ Game::Game(sf::RenderWindow &window) : win(window), is_enter_pressed(false), is_
      if (!bg_texture.loadFromFile("assets/bg.png")) {
         std::cerr << "Error: Could not load bg.png" << std::endl;
     }
-    if (!bg_texturea.loadFromFile("assets/bg_night.png")) {
+    if (!bg_textureb.loadFromFile("assets/bg_night.jpg")) {
         std::cerr << "Error: Could not load bg_night.png" << std::endl;
     }
-      if (!bg_textureb.loadFromFile("assets/home.jpg")) {
+      if (!bg_texturea.loadFromFile("assets/home.jpg")) {
         std::cerr << "Error: Could not load home.png" << std::endl;
     }
     bg_sprite.setTexture(bg_texture);
@@ -36,13 +36,6 @@ Game::Game(sf::RenderWindow &window) : win(window), is_enter_pressed(false), is_
     bg_sprite.setPosition(0.f, 0.f);
     bg_spritea.setPosition(bg_sprite.getGlobalBounds().width, 0.f);
     bg_spriteb.setPosition(bg_spritea.getGlobalBounds().width, 0.f);
-
-    if (!loading_texture.loadFromFile("assets/loading.gif")) {
-        std::cerr << "Error: Could not load loading.gif" << std::endl;
-    }
-   
-    loading_sprite.setTexture(loading_texture);
-    loading_sprite.setPosition(180, 280);
 
     if (!volume_on_texture.loadFromFile("assets/volume_on.png")) {
         std::cerr << "Error: Could not load volume_on.png" << std::endl;
