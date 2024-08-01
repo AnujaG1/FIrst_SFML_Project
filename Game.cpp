@@ -247,7 +247,6 @@ void Game::checkScore()
 
 void Game::draw()
 {
-    win.draw(exit_text);
     if(score >=2 && score <=4)
     {
         bg_sprite.setTexture(bg_texturea);
@@ -279,6 +278,7 @@ void Game::draw()
     win.draw(start_text);
     win.draw(ground_sprite1);
     win.draw(ground_sprite2);
+    win.draw(exit_text);
     win.draw(bird.bird_sprite);
     win.draw(score_hud_text);
 
